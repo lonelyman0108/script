@@ -21,40 +21,140 @@
 请根据您使用的代理软件，选择对应的配置方法。
 
 <details>
-<summary><strong>Surge (当前支持)</strong></summary>
+<summary><strong>Surge</strong></summary>
 
 **1. 复制模块链接**
 
-   * **直连用户** (如海外用户):
-       ```
-       https://raw.githubusercontent.com/lonelyman0108/script/refs/heads/master/xiaomi_ev_order_monitor/surge/xiaomi_ev_order_monitor.sgmodule
-       ```
-   * **国内加速** (使用 `cdn.jsdelivr.net`):
-       ```
-       https://cdn.jsdelivr.net/gh/lonelyman0108/script@master/xiaomi_ev_order_monitor/surge/xiaomi_ev_order_monitor.sgmodule
-       ```
-       > 注意：Jsdelivr 有缓存，更新可能存在延迟。
+  * **直连用户** (如海外用户):
+    ```
+    https://raw.githubusercontent.com/lonelyman0108/script/master/xiaomi_ev_order_monitor/surge/xiaomi_ev_order_monitor.sgmodule
+    ```
+  * **国内加速** (使用 `cdn.jsdelivr.net`):
+    ```
+    https://cdn.jsdelivr.net/gh/lonelyman0108/script@master/xiaomi_ev_order_monitor/surge/xiaomi_ev_order_monitor.sgmodule
+    ```
+    > 注意：Jsdelivr 有缓存，更新可能存在延迟。
 
 **2. 在 Surge 中安装模块**
 
-   * 打开 Surge App，切换到 `首页` -> `模块`。
-   * 点击 `安装新模块`。
-   * 将上一步复制的 URL 粘贴进去，点击 `好的`。
-   * Surge 会自动下载并安装模块。请确保在模块列表中，该模块右侧的开关是**开启**状态。
+  * 打开 Surge App，切换到 `首页` -\> `模块`。
+  * 点击 `安装新模块`。
+  * 将上一步复制的 URL 粘贴进去，点击 `好的`。
+  * Surge 会自动下载并安装模块。请确保在模块列表中，该模块右侧的开关是**开启**状态。
 
 **3. 确认 MitM 已启用**
 
-   * 回到 Surge `首页`，点击 `MitM`。
-   * 确保顶部的 `MitM` 总开关已开启。
-   * 确保您已经按照 Surge 的指引，正确安装并信任了 Surge CA 证书。
-   * 模块会自动将所需的主机名 `api.retail.xiaomiev.com` 添加到 MitM 主机名列表中。
+  * 回到 Surge `首页`，点击 `MitM`。
+  * 确保顶部的 `MitM` 总开关已开启。
+  * 确保您已经按照 Surge 的指引，正确安装并信任了 Surge CA 证书。
+  * 模块会自动将所需的主机名 `api.retail.xiaomiev.com` 添加到 MitM 主机名列表中。
 
 </details>
 
 <details>
-<summary><strong>Quantumult X (待适配)</strong></summary>
+<summary><strong>Stash</strong></summary>
 
-- Quantumult X 的配置正在适配中，敬请期待。
+**1. 复制覆盖链接**
+
+  * **直连用户**:
+    ```
+    https://raw.githubusercontent.com/lonelyman0108/script/master/xiaomi_ev_order_monitor/stash/xiaomi_ev_order_monitor.stoverride
+    ```
+  * **国内加速**:
+    ```
+    https://cdn.jsdelivr.net/gh/lonelyman0108/script@master/xiaomi_ev_order_monitor/stash/xiaomi_ev_order_monitor.stoverride
+    ```
+
+**2. 在 Stash 中安装覆盖**
+
+  * 打开 Stash App，进入 `设置` -\> `覆盖`。
+  * 点击右上角的 `+` 号，选择 `从 URL 下载`。
+  * 粘贴上方复制的链接，Stash 会自动下载并启用该覆盖。
+
+**3. 确认 MitM 已启用**
+
+  * 确保您的 Stash 配置中已启用 MitM，并已安装和信任 Stash 的 CA 证书。
+  * 该覆盖会自动添加 `api.retail.xiaomiev.com` 到 MitM 主机名列表。
+
+</details>
+
+<details>
+<summary><strong>Loon</strong></summary>
+
+**1. 复制插件链接**
+
+  * **直连用户**:
+    ```
+    https://raw.githubusercontent.com/lonelyman0108/script/master/xiaomi_ev_order_monitor/loon/xiaomi_ev_order_monitor.plugin
+    ```
+  * **国内加速**:
+    ```
+    https://cdn.jsdelivr.net/gh/lonelyman0108/script@master/xiaomi_ev_order_monitor/loon/xiaomi_ev_order_monitor.plugin
+    ```
+
+**2. 在 Loon 中添加插件**
+
+  * 打开 Loon App，切换到 `配置` 标签页。
+  * 找到并点击 `插件`，然后点击右上角的 `+` 号。
+  * 将复制的链接粘贴到 `URL` 字段，点击 `确认` 添加。
+
+**3. 确认 MitM 已启用**
+
+  * 确保您已在 Loon 的 `配置` 中启用了 MitM，并正确安装了 CA 证书。
+  * 插件会自动处理 `hostname`。
+
+</details>
+
+<details>
+<summary><strong>Shadowrocket</strong></summary>
+
+**1. 复制模块链接**
+
+  * **直连用户**:
+    ```
+    https://raw.githubusercontent.com/lonelyman0108/script/master/xiaomi_ev_order_monitor/shadowrocket/xiaomi_ev_order_monitor.module
+    ```
+  * **国内加速**:
+    ```
+    https://cdn.jsdelivr.net/gh/lonelyman0108/script@master/xiaomi_ev_order_monitor/shadowrocket/xiaomi_ev_order_monitor.module
+    ```
+
+**2. 在 Shadowrocket 中安装模块**
+
+  * 打开 Shadowrocket，进入 `配置` 页面，点击任意一个配置文件进入编辑。
+  * 在 `[Rule]` 部分上方添加 `[Module]` 段，然后粘贴模块链接。
+  * 或者，直接通过 URL 导入模块。
+
+**3. 确认 MitM 已启用**
+
+  * 在 Shadowrocket 的 `配置` -\> `模块` 中启用 MitM，并确保 CA 证书已安装并受信任。
+
+</details>
+
+<details>
+<summary><strong>Quantumult X</strong></summary>
+
+**1. 复制配置文件链接**
+
+  * **直连用户**:
+    ```
+    https://raw.githubusercontent.com/lonelyman0108/script/master/xiaomi_ev_order_monitor/qx/xiaomi_ev_order_monitor.conf
+    ```
+  * **国内加速**:
+    ```
+    https://cdn.jsdelivr.net/gh/lonelyman0108/script@master/xiaomi_ev_order_monitor/qx/xiaomi_ev_order_monitor.conf
+    ```
+
+**2. 在 Quantumult X 中引用配置**
+
+  * 打开 Quantumult X，点击右下角的 `风车` 图标，进入 `配置文件` -\> `编辑`。
+  * 在 `[rewrite_local]` 和 `[task_local]` 部分，通过远程链接引用此配置文件。
+  * 或者，在 `[General]` 下添加 `resource_parser_enable=true`，然后在 `[rewrite_remote]` 和 `[task_remote]` 中添加链接。
+
+**3. 确认 MitM 已启用**
+
+  * 在 Quantumult X 的设置中，确保 MitM 已开启，并且证书已正确安装和信任。
+  * 在 `[mitm]` 部分确保 `hostname = api.retail.xiaomiev.com` 已被包含。
 
 </details>
 

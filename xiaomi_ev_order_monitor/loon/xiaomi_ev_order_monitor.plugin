@@ -1,0 +1,16 @@
+[Plugin]
+name = 小米汽车订单监控
+description = 监控小米汽车订单状态，并在状态变更时发送通知。
+author = lonelyman0108
+repo = https://github.com/lonelyman0108/script
+version = 1.0.0
+
+[MITM]
+hostname = api.retail.xiaomiev.com
+
+[Script]
+# 定时检查订单状态
+cron "0 */30 * * * *" script-path=https://raw.githubusercontent.com/lonelyman0108/script/refs/heads/master/xiaomi_ev_order_monitor/scripts/xiaomi_ev_order_check.js, tag=小米汽车订单检查
+
+# 捕获订单请求
+http-request ^https:\/\/api\.retail\.xiaomiev\.com\/mtop\/carlife\/product\/order script-path=https://raw.githubusercontent.com/lonelyman0108/script/refs/heads/master/xiaomi_ev_order_monitor/scripts/xiaomi_ev_order_get.js, requires-body=true, tag=小米汽车订单捕获
