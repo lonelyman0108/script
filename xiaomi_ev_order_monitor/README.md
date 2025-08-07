@@ -1,9 +1,6 @@
 # 🚗 小米汽车 App 订单监控
 
-![Surge](https://img.shields.io/badge/Surge-✓-orange)
-![Quantumult X](https://img.shields.io/badge/Quantumult%20X-待适配-lightgrey)
-![Loon](https://img.shields.io/badge/Loon-待适配-lightgrey)
-![Stash](https://img.shields.io/badge/Stash-待适配-lightgrey)
+![Surge](https://img.shields.io/badge/Surge-✓-green) ![Stash](https://img.shields.io/badge/Stash-✓-green) ![Loon](https://img.shields.io/badge/Loon-✓-green) ![Shadowrocket](https://img.shields.io/badge/Shadowrocket-✓-green) ![Quantumult X](https://img.shields.io/badge/Quantumult%20X-✓-green)
 
 这是一个脚本项目，用于自动追踪您的小米汽车（如 SU7、YU7）订单状态。配置完成后，它将静默在后台运行，并在订单状态发生关键变化时向您发送通知。
 
