@@ -1,0 +1,19 @@
+# xiaomi_ev_order_monitor.stoverride
+# Stash 覆盖文件
+name: 小米汽车订单监控
+description: 自动监控小米汽车订单状态并发送通知
+author: lonelyman0108
+
+mitm:
+  - "api.retail.xiaomiev.com"
+
+scripts:
+  - name: 小米汽车订单捕获
+    type: http-request
+    match: ^https:\/\/api\.retail\.xiaomiev\.com\/mtop\/carlife\/product\/order
+    require-body: true
+    target: https://cdn.jsdelivr.net/gh/lonelyman0108/script@master/xiaomi_ev_order_monitor/scripts/xiaomi_ev_order_get.js
+  - name: 小米汽车订单检查
+    type: cron
+    cron: "0 */30 * * * *"
+    target: https://cdn.jsdelivr.net/gh/lonelyman0108/script@master/xiaomi_ev_order_monitor/scripts/xiaomi_ev_order_check.js

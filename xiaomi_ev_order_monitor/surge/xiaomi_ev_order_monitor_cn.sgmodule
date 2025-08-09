@@ -1,0 +1,13 @@
+#!name=小米汽车订单监控
+#!desc=使用前需要先打开一次小米汽车APP，捕获请求信息后，每30分钟检查一次状态。在每天早上9点会发送一次完整的状态报告；其他时间仅在状态发生变更时推送通知。
+#!category=lonelyman0108
+#!repo=https://github.com/lonelyman0108/script
+#!author=lonelyman0108
+
+[MITM]
+hostname = %APPEND% api.retail.xiaomiev.com
+
+[Script]
+xiaomi_ev_order_get = type=http-request, pattern=^https:\/\/api\.retail\.xiaomiev\.com\/mtop\/carlife\/product\/order, script-path=https://cdn.jsdelivr.net/gh/lonelyman0108/script@master/xiaomi_ev_order_monitor/scripts/xiaomi_ev_order_get.js, requires-body=true
+
+xiaomi_ev_order_check = type=cron, cronexp="0 */30 * * * *", script-path=https://cdn.jsdelivr.net/gh/lonelyman0108/script@master/xiaomi_ev_order_monitor/scripts/xiaomi_ev_order_check.js, wakeup=true

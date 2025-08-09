@@ -28,7 +28,7 @@
     ```
   * **国内加速** (使用 `cdn.jsdelivr.net`):
     ```
-    https://cdn.jsdelivr.net/gh/lonelyman0108/script@master/xiaomi_ev_order_monitor/surge/xiaomi_ev_order_monitor.sgmodule
+    https://cdn.jsdelivr.net/gh/lonelyman0108/script@master/xiaomi_ev_order_monitor/surge/xiaomi_ev_order_monitor_cn.sgmodule
     ```
     > 注意：Jsdelivr 有缓存，更新可能存在延迟。
 
@@ -59,7 +59,7 @@
     ```
   * **国内加速**:
     ```
-    https://cdn.jsdelivr.net/gh/lonelyman0108/script@master/xiaomi_ev_order_monitor/stash/xiaomi_ev_order_monitor.stoverride
+    https://cdn.jsdelivr.net/gh/lonelyman0108/script@master/xiaomi_ev_order_monitor/stash/xiaomi_ev_order_monitor_cn.stoverride
     ```
 
 **2. 在 Stash 中安装覆盖**
@@ -86,7 +86,7 @@
     ```
   * **国内加速**:
     ```
-    https://cdn.jsdelivr.net/gh/lonelyman0108/script@master/xiaomi_ev_order_monitor/loon/xiaomi_ev_order_monitor.plugin
+    https://cdn.jsdelivr.net/gh/lonelyman0108/script@master/xiaomi_ev_order_monitor/loon/xiaomi_ev_order_monitor_cn.plugin
     ```
 
 **2. 在 Loon 中添加插件**
@@ -113,7 +113,7 @@
     ```
   * **国内加速**:
     ```
-    https://cdn.jsdelivr.net/gh/lonelyman0108/script@master/xiaomi_ev_order_monitor/shadowrocket/xiaomi_ev_order_monitor.module
+    https://cdn.jsdelivr.net/gh/lonelyman0108/script@master/xiaomi_ev_order_monitor/shadowrocket/xiaomi_ev_order_monitor_cn.module
     ```
 
 **2. 在 Shadowrocket 中安装模块**
@@ -139,7 +139,7 @@
     ```
   * **国内加速**:
     ```
-    https://cdn.jsdelivr.net/gh/lonelyman0108/script@master/xiaomi_ev_order_monitor/qx/xiaomi_ev_order_monitor.conf
+    https://cdn.jsdelivr.net/gh/lonelyman0108/script@master/xiaomi_ev_order_monitor/qx/xiaomi_ev_order_monitor_cn.conf
     ```
 
 **2. 在 Quantumult X 中引用配置**
