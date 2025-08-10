@@ -6,7 +6,7 @@
 const url = "https://api.retail.xiaomiev.com/mtop/carlife/product/order";
 const headersKey = "xiaomi_ev_headers";
 const bodyKey = "xiaomi_ev_body";
-const lastStatusKey = "xiaomi_ev_last_status";
+const lastVidKey = "xiaomi_ev_last_vid";
 
 const lm = new Env("小米汽车订单监控");
 
@@ -49,8 +49,8 @@ const lm = new Env("小米汽车订单监控");
 
       if (
         !orderDetailDto ||
-        !orderDetailDto.statusInfo ||
-        !orderDetailDto.statusInfo.orderStatus
+        !orderDetailDto.buyCarInfo ||
+        !orderDetailDto.buyCarInfo.vid
       ) {
         lm.log("📄 [小米汽车] 解析数据失败：JSON结构可能已变更。");
         lm.msg(
@@ -62,13 +62,15 @@ const lm = new Env("小米汽车订单监控");
         return;
       }
 
-      const statusInfo = orderDetailDto.statusInfo;
+      const buyCarInfo = orderDetailDto.buyCarInfo;
       const orderTimeInfo = orderDetailDto.orderTimeInfo;
 
-      const currentStatus = String(statusInfo.orderStatus);
-      const currentStatusName = statusInfo.orderStatusName || "N/A";
-      const lastStatus = lm.getdata(lastStatusKey);
+      const currentVid = buyCarInfo.vid;
+
+      const lastVid = lm.getdata(lastVidKey);
       const currentHour = new Date().getHours();
+      const currentMinute = new Date().getMinutes();
+
       let remainingTime = "";
       if (
         orderTimeInfo &&
@@ -79,52 +81,56 @@ const lm = new Env("小米汽车订单监控");
       }
 
       // 检查当前小时是否为9点，决定执行哪种逻辑
-      if (currentHour === 9) {
+      if (currentHour === 9 && currentMinute === 0) {
         // --- 每日报告逻辑 ---
         lm.log(`☀️ [小米汽车] 现在是${currentHour}点，执行每日报告。`);
-        lm.setdata(currentStatus, lastStatusKey);
+        lm.setdata(currentVid, lastVidKey);
         lm.log(
-          `💾 [小米汽车] 已将最新状态码 ${currentStatus} 保存为基准。`
+          `💾 [小米汽车] 已将最新车架号 ${currentVid} 保存为基准。`
         );
 
-        const customStatus = parseOrderStatus(currentStatus);
+        const customStatus = parseVidToOrderStatus(currentVid);
+        const showVid = parseVid(currentVid);
         const title = "☀️ 小米汽车每日订单报告";
         const subtitle = `实际状态: ${customStatus}`;
-        const content = `剩余时间: ${remainingTime}\nAPP状态: ${currentStatusName}\n报告时间: ${new Date().toLocaleTimeString(
+        const content = `APP剩余时间: ${remainingTime}\n车架号: ${showVid}\n报告时间: ${new Date().toLocaleTimeString(
           "zh-CN"
         )}`;
         lm.msg(title, subtitle, content);
       } else {
         // --- 增量检查逻辑 ---
         lm.log(`🔄 [小米汽车] 现在是${currentHour}点，执行增量检查。`);
-        if (!lastStatus) {
+        if (!lastVid) {
           // 如果没有基准状态（例如首次运行），则只保存不通知
           lm.log(
-            `🤔 [小米汽车] 尚无基准状态，已将当前状态 ${currentStatus} 保存,并通知。`
+            `🤔 [小米汽车] 尚无基准状态，已将当前车架号 ${currentVid} 保存,并通知。`
           );
-          lm.setdata(currentStatus, lastStatusKey);
+          lm.setdata(currentVid, lastVidKey);
 
-          const customStatus = parseOrderStatus(currentStatus);
+          const customStatus = parseVidToOrderStatus(currentVid);
+          const showVid = parseVid(currentVid);
           const title = "✅ 小米汽车订单状态获取！";
           const subtitle = `实际状态: ${customStatus}`;
-          const content = `剩余时间: ${remainingTime}\nAPP状态: ${currentStatusName}\n获取时间: ${new Date().toLocaleTimeString(
+          const content = `APP剩余时间: ${remainingTime}\n车架号: ${showVid}\n获取时间: ${new Date().toLocaleTimeString(
             "zh-CN"
           )}`;
           lm.msg(title, subtitle, content);
-        } else if (currentStatus !== lastStatus) {
+        } else if (currentVid !== lastVid) {
           lm.log(
-            `🔔 [小米汽车] 状态已变更! 旧: ${lastStatus}, 新: ${currentStatus}`
+            `🔔 [小米汽车] 车架号已变更! 旧: ${lastVid}, 新: ${currentVid}`
           );
-          lm.setdata(currentStatus, lastStatusKey);
+          lm.setdata(currentVid, lastVidKey);
 
-          const customStatus = parseOrderStatus(currentStatus);
+          const customStatus = parseVidToOrderStatus(currentVid);
+          const showVid = parseVid(currentVid);
           const title = "🔔 小米汽车订单状态变更！";
           const subtitle = `实际新状态: ${customStatus}`;
-          const content = `剩余时间: ${remainingTime}\nAPP新状态: ${currentStatusName}\n变更时间: ${new Date().toLocaleTimeString(
+          const content = `APP剩余时间: ${remainingTime}\n车架号: ${showVid}\n变更时间: ${new Date().toLocaleTimeString(
             "zh-CN"
           )}`;
           lm.msg(title, subtitle, content);
         } else {
+          lm.log(`😴 [小米汽车] 车架号无变化: ${currentVid}，继续监控。`);
           lm.log("😴 [小米汽车] 状态无变化，静默处理。");
         }
       }
@@ -141,17 +147,19 @@ const lm = new Env("小米汽车订单监控");
   });
 })();
 
-function parseOrderStatus(status) {
-  const statusStr = String(status);
-  switch (statusStr) {
-    case "2520":
-      return "❌ 未下线";
-    case "2605":
-      return "🏭 已下线，未运输";
-    case "3000":
-      return "🚚 已下线，运输中";
-    default:
-      return "❓ 未知状态";
+function parseVidToOrderStatus(vid) {
+  if(vid.startsWith("HXM")) {
+    return "🏭 已下线";
+  }else{
+    return "❌ 未下线";
+  }
+}
+
+function parseVid(vid) {
+  if(vid.startsWith("HXM")) {
+    return vid;
+  }else{
+    return "💔 未绑定";
   }
 }
 
