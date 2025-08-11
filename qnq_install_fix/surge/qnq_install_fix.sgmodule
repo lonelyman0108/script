@@ -1,6 +1,7 @@
 #!name=全能签安装修复
 #!desc=修复全能签因证书权限问题导致无法访问127.0.0.1而安装失败的问题。
 #!author=lonelyman0108
+#!category=lonelyman0108
 
 [MITM]
 hostname = %APPEND% plist*.nuosike.com
