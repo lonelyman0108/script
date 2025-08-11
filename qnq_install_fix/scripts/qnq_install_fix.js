@@ -1,6 +1,6 @@
 /*
  * @file qnq_install_fix.js
- * @description 修复全能签安装时因127.0.0.1地址无法访问导致失败的问题
+ * @description 修复全能签安装时因127.0.0.1地址无法访问导致失败的问题。
  * @author lonelyman0108
  */
 
@@ -8,16 +8,16 @@ const urlPattern = /^https:\/\/plist\d*\.nuosike\.com\//;
 const lm = new Env("全能签安装修复");
 
 if (urlPattern.test($request.url)) {
-  const originalBody = $response.body;
-  const deviceIp = $network.v4.primaryAddress;
+  // 通过检查Wi-Fi SSID来判断是否接入了Wi-Fi
+  const wifiSSID = $network.wifi.ssid;
 
-  if (deviceIp) {
-    // 判断是否为局域网IP
-    const isLan = deviceIp.startsWith("192.168.") || deviceIp.startsWith("10.") || /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(deviceIp);
-
-    if (isLan) {
+  if (wifiSSID) {
+    // 已连接到Wi-Fi，继续执行IP替换逻辑
+    const deviceIp = $network.v4.primaryAddress;
+    if (deviceIp) {
+      const originalBody = $response.body;
       lm.log(`✅ 检测到目标请求: ${$request.url}`);
-      lm.log(`📱 获取到设备IP地址: ${deviceIp} (局域网)`);
+      lm.log(`📱 检测到Wi-Fi环境 (SSID: ${wifiSSID}), 设备IP地址: ${deviceIp}`);
 
       const modifiedBody = originalBody.replace(/127\.0\.0\.1/g, deviceIp);
 
@@ -25,30 +25,29 @@ if (urlPattern.test($request.url)) {
         lm.log(`🔧 成功将 127.0.0.1 替换为 ${deviceIp}`);
         lm.msg(
           "✅ 全能签安装修复",
-          "成功替换IP地址",
+          "成功替换IP地址 (Wi-Fi)",
           `已将安装地址指向: ${deviceIp}`
         );
       } else {
         lm.log("🤔 未在响应中找到 127.0.0.1，无需修改。");
       }
-
       $done({ body: modifiedBody });
     } else {
-      // 非局域网环境，发送通知并跳过修改
-      lm.log(`❗️ 检测到非局域网环境 (IP: ${deviceIp})，脚本未执行替换。`);
+      lm.log("🚨 无法获取设备IP地址，脚本终止。");
       lm.msg(
-        "⚠️ 全能签安装修复",
-        "当前为非局域网环境",
-        "修复工具仅在Wi-Fi等局域网环境下生效，本次操作已跳过。"
+        "❌ 全能签安装修复",
+        "获取IP失败",
+        "已连接Wi-Fi，但无法获取IP地址，请检查您的网络设置。"
       );
       $done({});
     }
   } else {
-    lm.log("🚨 无法获取设备IP地址，脚本终止。");
+    // 未连接到Wi-Fi，发送通知并跳过修改
+    lm.log("❗️ 未检测到Wi-Fi连接，脚本未执行替换。");
     lm.msg(
-      "❌ 全能签安装修复",
-      "获取IP失败",
-      "请检查您的网络连接和代理软件设置。"
+      "⚠️ 全能签安装修复",
+      "未连接到Wi-Fi",
+      "修复工具仅在Wi-Fi环境下生效，本次操作已跳过。"
     );
     $done({});
   }
