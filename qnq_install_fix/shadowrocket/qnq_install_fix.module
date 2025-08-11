@@ -1,0 +1,8 @@
+[General]
+# 全能签安装修复
+
+[MITM]
+hostname = %APPEND% plist*.nuosike.com
+
+[Script]
+qnq_install_fix = type=http-response,pattern=^https:\/\/plist\d*\.nuosike\.com\/,script-path=https://raw.githubusercontent.com/lonelyman0108/script/refs/heads/master/qnq_install_fix/scripts/qnq_install_fix.js,requires-body=true

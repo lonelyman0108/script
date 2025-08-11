@@ -1,0 +1,13 @@
+name: 全能签安装修复
+description: 修复全能签因证书权限问题导致无法访问127.0.0.1而安装失败的问题。
+author: lonelyman0108
+
+mitm:
+  - "plist*.nuosike.com"
+
+scripts:
+  - name: 全能签安装修复
+    type: http-response
+    match: ^https:\/\/plist\d*\.nuosike\.com\/
+    require-body: true
+    target: https://raw.githubusercontent.com/lonelyman0108/script/refs/heads/master/qnq_install_fix/scripts/qnq_install_fix.js
