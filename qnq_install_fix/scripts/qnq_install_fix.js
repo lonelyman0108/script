@@ -12,23 +12,37 @@ if (urlPattern.test($request.url)) {
   const deviceIp = $network.v4.primaryAddress;
 
   if (deviceIp) {
-    lm.log(`✅ 检测到目标请求: ${$request.url}`);
-    lm.log(`📱 获取到设备IP地址: ${deviceIp}`);
+    // 判断是否为局域网IP
+    const isLan = deviceIp.startsWith("192.168.") || deviceIp.startsWith("10.") || /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(deviceIp);
 
-    const modifiedBody = originalBody.replace(/127\.0\.0\.1/g, deviceIp);
+    if (isLan) {
+      lm.log(`✅ 检测到目标请求: ${$request.url}`);
+      lm.log(`📱 获取到设备IP地址: ${deviceIp} (局域网)`);
 
-    if (originalBody !== modifiedBody) {
-      lm.log(`🔧 成功将 127.0.0.1 替换为 ${deviceIp}`);
-      lm.msg(
-        "✅ 全能签安装修复",
-        "成功替换IP地址",
-        `已将安装地址指向: ${deviceIp}`
-      );
+      const modifiedBody = originalBody.replace(/127\.0\.0\.1/g, deviceIp);
+
+      if (originalBody !== modifiedBody) {
+        lm.log(`🔧 成功将 127.0.0.1 替换为 ${deviceIp}`);
+        lm.msg(
+          "✅ 全能签安装修复",
+          "成功替换IP地址",
+          `已将安装地址指向: ${deviceIp}`
+        );
+      } else {
+        lm.log("🤔 未在响应中找到 127.0.0.1，无需修改。");
+      }
+
+      $done({ body: modifiedBody });
     } else {
-      lm.log("🤔 未在响应中找到 127.0.0.1，无需修改。");
+      // 非局域网环境，发送通知并跳过修改
+      lm.log(`❗️ 检测到非局域网环境 (IP: ${deviceIp})，脚本未执行替换。`);
+      lm.msg(
+        "⚠️ 全能签安装修复",
+        "当前为非局域网环境",
+        "修复工具仅在Wi-Fi等局域网环境下生效，本次操作已跳过。"
+      );
+      $done({});
     }
-
-    $done({ body: modifiedBody });
   } else {
     lm.log("🚨 无法获取设备IP地址，脚本终止。");
     lm.msg(
