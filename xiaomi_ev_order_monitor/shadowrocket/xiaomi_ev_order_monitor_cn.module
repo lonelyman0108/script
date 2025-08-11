@@ -9,7 +9,7 @@ hostname = %APPEND% api.retail.xiaomiev.com
 
 [Script]
 # 捕获小米汽车订单信息
-xiaomi_ev_order_get = type=http-request,pattern=^https:\/\/api\.retail\.xiaomiev\.com\/mtop\/carlife\/product\/order,script-path=https://cdn.jsdelivr.net/gh/lonelyman0108/script@master/xiaomi_ev_order_monitor/scripts/xiaomi_ev_order_get.js,requires-body=true
+xiaomi_ev_order_get = type=http-request,pattern=^https:\/\/api\.retail\.xiaomiev\.com\/mtop\/(carlife\/product\/order|car-order\/order\/detail),script-path=https://cdn.jsdelivr.net/gh/lonelyman0108/script@master/xiaomi_ev_order_monitor/scripts/xiaomi_ev_order_get.js,requires-body=true
 
 # 定时检查小米汽车订单状态
 xiaomi_ev_order_check = type=cron,cronexp="0 */30 * * * *",script-path=https://cdn.jsdelivr.net/gh/lonelyman0108/script@master/xiaomi_ev_order_monitor/scripts/xiaomi_ev_order_check.js,wakeup=true

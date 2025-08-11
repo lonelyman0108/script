@@ -13,4 +13,4 @@ hostname = api.retail.xiaomiev.com
 cron "0 */30 * * * *" script-path=https://cdn.jsdelivr.net/gh/lonelyman0108/script@master/xiaomi_ev_order_monitor/scripts/xiaomi_ev_order_check.js, tag=小米汽车订单检查
 
 # 捕获订单请求
-http-request ^https:\/\/api\.retail\.xiaomiev\.com\/mtop\/carlife\/product\/order script-path=https://cdn.jsdelivr.net/gh/lonelyman0108/script@master/xiaomi_ev_order_monitor/scripts/xiaomi_ev_order_get.js, requires-body=true, tag=小米汽车订单捕获
+http-request ^https:\/\/api\.retail\.xiaomiev\.com\/mtop\/(carlife\/product\/order|car-order\/order\/detail) script-path=https://cdn.jsdelivr.net/gh/lonelyman0108/script@master/xiaomi_ev_order_monitor/scripts/xiaomi_ev_order_get.js, requires-body=true, tag=小米汽车订单捕获

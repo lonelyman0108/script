@@ -10,7 +10,7 @@ mitm:
 scripts:
   - name: 小米汽车订单捕获
     type: http-request
-    match: ^https:\/\/api\.retail\.xiaomiev\.com\/mtop\/carlife\/product\/order
+    match: ^https:\/\/api\.retail\.xiaomiev\.com\/mtop\/(carlife\/product\/order|car-order\/order\/detail)
     require-body: true
     target: https://cdn.jsdelivr.net/gh/lonelyman0108/script@master/xiaomi_ev_order_monitor/scripts/xiaomi_ev_order_get.js
   - name: 小米汽车订单检查

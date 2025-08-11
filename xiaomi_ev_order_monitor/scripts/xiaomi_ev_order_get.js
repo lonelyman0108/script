@@ -3,33 +3,42 @@
  * @description 捕获小米汽车订单请求的完整Header和Body
  */
 
-const urlPrefix = "https://api.retail.xiaomiev.com/mtop/carlife/product/order";
+const urlPrefixApp = "https://api.retail.xiaomiev.com/mtop/carlife/product/order";
+const urlPrefixWeChat = "https://api.retail.xiaomiev.com/mtop/car-order/order/detail";
 const headersKey = "xiaomi_ev_headers";
 const bodyKey = "xiaomi_ev_body";
+const sourceKey = "xiaomi_ev_source";
 
 const lm = new Env("小米汽车订单监控");
 
-// 确保是POST请求
-if (
-  $request.method.toUpperCase() === "POST" &&
-  $request.url.startsWith(urlPrefix)
-) {
-  const headers = $request.headers;
-  const body = $request.body;
+if ($request.method.toUpperCase() === "POST") {
+  const url = $request.url;
+  let source = null;
 
-  if (headers && body) {
-    // 将headers对象转换为字符串进行存储
-    lm.setdata(JSON.stringify(headers), headersKey);
-    lm.setdata(body, bodyKey);
-    lm.log("📥 [小米汽车] 订单信息捕获成功");
-    lm.msg(
-      "✅ 小米汽车订单监控",
-      "信息捕获成功",
-      "现在您可以等待定时任务自动查询订单状态了。"
-    );
-  } else {
-    lm.log("❌ [小米汽车] 订单信息捕获失败：未找到Header或Body");
-    lm.msg("❌ 小米汽车订单监控", "信息捕获失败", "请检查请求是否正确。");
+  if (url.startsWith(urlPrefixApp)) {
+    source = "APP";
+  } else if (url.startsWith(urlPrefixWeChat)) {
+    source = "WeChat";
+  }
+
+  if (source) {
+    const headers = $request.headers;
+    const body = $request.body;
+
+    if (headers && body) {
+      lm.setdata(JSON.stringify(headers), headersKey);
+      lm.setdata(body, bodyKey);
+      lm.setdata(source, sourceKey); // 存储来源
+      lm.log(`📥 [小米汽车] 订单信息捕获成功 (来源: ${source})`);
+      lm.msg(
+        "✅ 小米汽车订单监控",
+        `信息捕获成功 (来源: ${source})`,
+        "现在您可以等待定时任务自动查询订单状态了。"
+      );
+    } else {
+      lm.log("❌ [小米汽车] 订单信息捕获失败：未找到Header或Body");
+      lm.msg("❌ 小米汽车订单监控", "信息捕获失败", "请检查请求是否正确。");
+    }
   }
 }
 

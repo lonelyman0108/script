@@ -3,10 +3,13 @@
  * @description 定时任务脚本。检查当前时间，决定执行每日报告还是增量检查。
  */
 
-const url = "https://api.retail.xiaomiev.com/mtop/carlife/product/order";
+const urlApp = "https://api.retail.xiaomiev.com/mtop/carlife/product/order";
+const urlWeChat = "https://api.retail.xiaomiev.com/mtop/car-order/order/detail";
+
 const headersKey = "xiaomi_ev_headers";
 const bodyKey = "xiaomi_ev_body";
 const lastVidKey = "xiaomi_ev_last_vid";
+const sourceKey = "xiaomi_ev_source";
 
 const lm = new Env("小米汽车订单监控");
 
@@ -16,20 +19,24 @@ const lm = new Env("小米汽车订单监控");
 
   const headersStr = lm.getdata(headersKey);
   const body = lm.getdata(bodyKey);
+  const source = lm.getdata(sourceKey) || "APP"; // 默认来源为APP
 
   if (!headersStr || !body) {
     lm.log("❓ [小米汽车] 尚未捕获订单信息，任务终止。");
     lm.msg(
       "⚠️ 小米汽车订单监控",
       "需要您进行操作",
-      "尚未捕获订单信息，请打开小米汽车App的订单详情页面以完成初始化。"
+      "尚未捕获订单信息，请打开小米汽车App或微信小程序的订单详情页面以完成初始化。"
     );
     lm.done();
     return;
   }
 
   const headers = JSON.parse(headersStr);
-  const requestOptions = { url, method: "POST", headers, body };
+  const requestUrl = source === "WeChat" ? urlWeChat : urlApp; // 根据来源选择URL
+  const requestOptions = { url: requestUrl, method: "POST", headers, body };
+  
+  lm.log(`ℹ️ [小米汽车] 使用来源: ${source}, 请求URL: ${requestUrl}`);
 
   lm.post(requestOptions, (error, response, data) => {
     if (error) {
@@ -37,7 +44,7 @@ const lm = new Env("小米汽车订单监控");
       lm.msg(
         "❌ 小米汽车订单监控",
         "小米汽车订单状态查询请求失败",
-        "请检查网络或Surge日志。"
+        "请检查网络或代理软件日志。"
       );
       lm.done();
       return;
@@ -45,12 +52,13 @@ const lm = new Env("小米汽车订单监控");
 
     try {
       const result = JSON.parse(data);
-      const orderDetailDto = result.data.orderDetailDto;
+      // 根据来源调整数据解析路径
+      const orderData = source === "WeChat" ? result.data : result.data.orderDetailDto;
 
       if (
-        !orderDetailDto ||
-        !orderDetailDto.buyCarInfo ||
-        !orderDetailDto.buyCarInfo.vid
+        !orderData ||
+        !orderData.buyCarInfo ||
+        !orderData.buyCarInfo.vid
       ) {
         lm.log("📄 [小米汽车] 解析数据失败：JSON结构可能已变更。");
         lm.msg(
@@ -62,13 +70,13 @@ const lm = new Env("小米汽车订单监控");
         return;
       }
 
-      const buyCarInfo = orderDetailDto.buyCarInfo;
-      const orderTimeInfo = orderDetailDto.orderTimeInfo;
+      const buyCarInfo = orderData.buyCarInfo;
+      const orderTimeInfo = orderData.orderTimeInfo;
 
       const currentVid = buyCarInfo.vid;
-
       const lastVid = lm.getdata(lastVidKey);
       const currentHour = new Date().getHours();
+      // 修复分钟获取
       const currentMinute = new Date().getMinutes();
 
       let remainingTime = "";
@@ -81,8 +89,8 @@ const lm = new Env("小米汽车订单监控");
       }
 
       // 检查当前小时是否为9点，决定执行哪种逻辑
-      if (currentHour === 9 && currentMinute === 0) {
-        // --- 每日报告逻辑 ---
+      if (currentHour === 9 && currentMinute >= 0 && currentMinute < 30) {
+        // --- 每日报告逻辑 (9:00 - 9:29) ---
         lm.log(`☀️ [小米汽车] 现在是${currentHour}点，执行每日报告。`);
         lm.setdata(currentVid, lastVidKey);
         lm.log(
@@ -93,7 +101,7 @@ const lm = new Env("小米汽车订单监控");
         const showVid = parseVid(currentVid);
         const title = "☀️ 小米汽车每日订单报告";
         const subtitle = `实际状态: ${customStatus}`;
-        const content = `APP剩余时间: ${remainingTime}\n车架号: ${showVid}\n报告时间: ${new Date().toLocaleTimeString(
+        const content = `剩余时间: ${remainingTime}\n车架号: ${showVid}\n报告时间: ${new Date().toLocaleTimeString(
           "zh-CN"
         )}`;
         lm.msg(title, subtitle, content);
@@ -101,9 +109,8 @@ const lm = new Env("小米汽车订单监控");
         // --- 增量检查逻辑 ---
         lm.log(`🔄 [小米汽车] 现在是${currentHour}点，执行增量检查。`);
         if (!lastVid) {
-          // 如果没有基准状态（例如首次运行），则只保存不通知
           lm.log(
-            `🤔 [小米汽车] 尚无基准状态，已将当前车架号 ${currentVid} 保存,并通知。`
+            `🤔 [小米汽车] 尚无基准状态，已将当前车架号 ${currentVid} 保存并通知。`
           );
           lm.setdata(currentVid, lastVidKey);
 
@@ -111,7 +118,7 @@ const lm = new Env("小米汽车订单监控");
           const showVid = parseVid(currentVid);
           const title = "✅ 小米汽车订单状态获取！";
           const subtitle = `实际状态: ${customStatus}`;
-          const content = `APP剩余时间: ${remainingTime}\n车架号: ${showVid}\n获取时间: ${new Date().toLocaleTimeString(
+          const content = `剩余时间: ${remainingTime}\n车架号: ${showVid}\n获取时间: ${new Date().toLocaleTimeString(
             "zh-CN"
           )}`;
           lm.msg(title, subtitle, content);
@@ -125,13 +132,12 @@ const lm = new Env("小米汽车订单监控");
           const showVid = parseVid(currentVid);
           const title = "🔔 小米汽车订单状态变更！";
           const subtitle = `实际新状态: ${customStatus}`;
-          const content = `APP剩余时间: ${remainingTime}\n车架号: ${showVid}\n变更时间: ${new Date().toLocaleTimeString(
+          const content = `剩余时间: ${remainingTime}\n车架号: ${showVid}\n变更时间: ${new Date().toLocaleTimeString(
             "zh-CN"
           )}`;
           lm.msg(title, subtitle, content);
         } else {
           lm.log(`😴 [小米汽车] 车架号无变化: ${currentVid}，继续监控。`);
-          lm.log("😴 [小米汽车] 状态无变化，静默处理。");
         }
       }
     } catch (e) {
@@ -148,17 +154,17 @@ const lm = new Env("小米汽车订单监控");
 })();
 
 function parseVidToOrderStatus(vid) {
-  if(vid.startsWith("HXM")) {
+  if (vid && vid.startsWith("HXM")) {
     return "🏭 已下线";
-  }else{
+  } else {
     return "❌ 未下线";
   }
 }
 
 function parseVid(vid) {
-  if(vid.startsWith("HXM")) {
+  if (vid && vid.startsWith("HXM")) {
     return vid;
-  }else{
+  } else {
     return "💔 未绑定";
   }
 }
