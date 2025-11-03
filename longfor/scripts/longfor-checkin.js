@@ -286,7 +286,7 @@ async function performLottery(headers) {
 }
 
 function getToken() {
-    if (isMatch(/\/supera\/member\/api\/bff\/pages\/v1_14_0\/v1\/user-info/)) {
+    if (isMatch(/\/supera\/member\/api\/bff\/pages\/v\d+_\d+_\d+\/v1\/user-info/)) {
         log('开始获取token')
         
         try {
