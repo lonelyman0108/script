@@ -1,0 +1,38 @@
+#!name=龙湖自动签到
+#!desc=龙湖APP自动签到功能模块，包含获取Token、定时签到和抽奖功能
+#!system=ios
+# 使用方法：
+# 1. 将此配置导入 Shadowrocket
+# 2. 开启 MITM 和脚本功能
+# 3. 打开龙湖APP登录, 打开“我的”页面获取token
+# 4. 脚本会自动执行签到和抽奖
+
+[MITM]
+hostname = %APPEND% gw2c-hw-open.longfor.com
+
+[Script]
+# 获取Token脚本, 获取成功后可以注释
+龙湖签到Token = type=http-response,pattern=^https:\/\/gw2c-hw-open\.longfor\.com\/supera\/member\/api\/bff\/pages\/v\d+_\d+_\d+\/v1\/user-info,requires-body=1,max-size=0,script-path=https://raw.githubusercontent.com/lonelyman0108/script/refs/heads/master/longfor/scripts/longfor-checkin.js
+
+# 定时签到和抽奖脚本
+龙湖自动签到 = type=cron,cronexp="0 9 * * *",wake-system=1,script-path=https://raw.githubusercontent.com/lonelyman0108/script/refs/heads/master/longfor/scripts/longfor-checkin.js
+
+# 使用说明：
+# 1. 安装配置后打开龙湖APP并登录
+# 2. 脚本会自动获取并保存认证信息
+# 3. 每天9点自动执行签到和抽奖
+# 4. 签到和抽奖结果会通过通知推送
+# 5. 兼容 Shadowrocket 环境，内联简化版 ToolKit
+
+# 功能特性：
+# ✅ 自动签到获取积分
+# ✅ 自动抽奖活动签到
+# ✅ 自动参与抽奖获取奖品
+# ✅ 智能错误处理和重试
+# ✅ 详细日志记录和通知
+
+# 抽奖活动说明：
+# - 脚本会先进行抽奖活动签到
+# - 签到成功后自动参与抽奖
+# - 支持处理"已签到"和"已抽奖"状态
+# - 抽奖成功会显示获得的奖品信息
