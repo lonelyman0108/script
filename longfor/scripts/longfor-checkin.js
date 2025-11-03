@@ -1,16 +1,19 @@
 /**
- * 龙湖APP自动签到脚本 - 优化版
+ * 龙湖APP自动签到脚本 - Surge优化版
  *
  * 功能：
  * 1. 自动完成龙湖APP每日签到，获取积分
  * 2. 自动完成抽奖活动签到和抽奖
- * 兼容：Shadowrocket, Surge, Quantumult X, Loon
+ * 兼容：Surge (优化), Quantumult X, Loon, Shadowrocket
  * 
- * 优化内容：
- * - 配置管理系统
+ * Surge优化内容：
+ * - 优化HTTP客户端适配，正确处理超时时间单位
+ * - 改进存储函数的错误处理和日志记录
+ * - 优化通知函数参数格式，适配Surge的$notification.post
+ * - 增强Token获取逻辑，支持多种header字段名格式
+ * - 添加环境检测功能，提供更好的调试信息
  * - 改进错误处理和重试机制
- * - 优化日志系统
- * - 代码结构重构
+ * - 优化日志系统，区分不同环境的日志格式
  */
 
 // 配置常量
@@ -49,20 +52,29 @@ const CONFIG = {
     }
 }
 
-// 工具函数
+// 工具函数 - 优化Surge日志输出
 function log(message, level = 'INFO') {
     const timestamp = new Date().toLocaleTimeString()
     const prefix = CONFIG.DEBUG_MODE ? `[${timestamp}][${level}] ` : ''
-    console.log(`${prefix}██ ${message}`)
+    
+    // 在 Surge 环境中优化日志输出格式
+    if (typeof $notification !== 'undefined') {
+        // Surge 环境
+        console.log(`${prefix}🐉 龙湖签到 | ${message}`)
+    } else {
+        // 其他环境
+        console.log(`${prefix}██ ${message}`)
+    }
 }
 
 function logError(message, error) {
-    log(`${message}: ${error}`, 'ERROR')
+    const errorMsg = typeof error === 'object' ? (error.message || JSON.stringify(error)) : error
+    log(`❌ ${message}: ${errorMsg}`, 'ERROR')
 }
 
 function logDebug(message) {
     if (CONFIG.DEBUG_MODE) {
-        log(message, 'DEBUG')
+        log(`🔍 ${message}`, 'DEBUG')
     }
 }
 
@@ -73,12 +85,18 @@ function isEmpty(obj) {
 function getVal(key, defaultValue = '') {
     try {
         let value
+        // Surge 环境优先使用 $persistentStore
         if (typeof $persistentStore !== 'undefined') {
             value = $persistentStore.read(key)
         } else if (typeof $prefs !== 'undefined') {
+            // Quantumult X 环境
             value = $prefs.valueForKey(key)
         }
-        return value || defaultValue
+        
+        // 确保返回值不为 undefined 或 null
+        const result = (value !== undefined && value !== null && value !== '') ? value : defaultValue
+        logDebug(`获取存储值 ${key}: ${result ? '已获取' : '使用默认值'}`)
+        return result
     } catch (e) {
         logError('获取存储值失败', e)
         return defaultValue
@@ -87,12 +105,21 @@ function getVal(key, defaultValue = '') {
 
 function setVal(key, val) {
     try {
+        let success = false
+        // Surge 环境优先使用 $persistentStore
         if (typeof $persistentStore !== 'undefined') {
-            return $persistentStore.write(val, key)
+            success = $persistentStore.write(val, key)
         } else if (typeof $prefs !== 'undefined') {
-            return $prefs.setValueForKey(val, key)
+            // Quantumult X 环境
+            success = $prefs.setValueForKey(val, key)
         }
-        return false
+        
+        if (success) {
+            logDebug(`设置存储值成功 ${key}`)
+        } else {
+            logError('设置存储值失败', `key: ${key}, val: ${val}`)
+        }
+        return success
     } catch (e) {
         logError('设置存储值失败', e)
         return false
@@ -101,15 +128,24 @@ function setVal(key, val) {
 
 function notify(subtitle, message, sound = '') {
     try {
+        // Surge 环境优先使用 $notification
         if (typeof $notification !== 'undefined') {
-            $notification.post(CONFIG.SCRIPT_NAME, subtitle, message, sound)
+            // Surge 的 $notification.post 参数顺序：title, subtitle, message, options
+            const options = sound ? { sound: sound } : {}
+            $notification.post(CONFIG.SCRIPT_NAME, subtitle, message, options)
+            logDebug(`通知已发送: ${subtitle} - ${message}`)
         } else if (typeof $notify !== 'undefined') {
+            // Quantumult X 和 Loon 环境
             $notify(CONFIG.SCRIPT_NAME, subtitle, message)
+            logDebug(`通知已发送: ${subtitle} - ${message}`)
         } else {
-            log(`通知: ${subtitle} - ${message}`)
+            // 降级到控制台输出
+            log(`📱 通知: ${subtitle} - ${message}`)
         }
     } catch (e) {
         logError('发送通知失败', e)
+        // 降级到控制台输出
+        log(`📱 通知(降级): ${subtitle} - ${message}`)
     }
 }
 
@@ -125,7 +161,7 @@ function sanitizeToken(token) {
     return token ? `${token.substring(0, 10)}...` : '无效token'
 }
 
-// HTTP请求函数（带重试机制）
+// HTTP请求函数（带重试机制）- 优化Surge适配
 async function httpPost(options, retryCount = CONFIG.RETRY_COUNT) {
     return new Promise((resolve, reject) => {
         const attemptRequest = (attempt) => {
@@ -151,13 +187,22 @@ async function httpPost(options, retryCount = CONFIG.RETRY_COUNT) {
                 }
             }
             
+            // Surge 环境优先使用 $httpClient
             if (typeof $httpClient !== 'undefined') {
-                $httpClient.post(requestOptions, handleResponse)
+                // Surge 的 $httpClient.post 需要确保正确的参数格式
+                const surgeOptions = {
+                    url: requestOptions.url,
+                    headers: requestOptions.headers,
+                    body: requestOptions.body,
+                    timeout: requestOptions.timeout / 1000 // Surge 使用秒为单位
+                }
+                $httpClient.post(surgeOptions, handleResponse)
             } else if (typeof $task !== 'undefined') {
+                // Quantumult X 环境
                 requestOptions.method = "POST"
                 $task.fetch(requestOptions).then(response => {
                     handleResponse(null, response, response.body)
-                }, reason => handleResponse(reason.error, null, null))
+                }, reason => handleResponse(reason.error || reason, null, null))
             } else {
                 reject(new Error("HTTP client not available"))
             }
@@ -173,6 +218,19 @@ function isRequest() {
 
 function isMatch(reg) {
     return !!($request && $request.method !== 'OPTIONS' && $request.url.match(reg))
+}
+
+// 环境检测函数
+function getEnvironment() {
+    if (typeof $httpClient !== 'undefined' && typeof $persistentStore !== 'undefined') {
+        return 'Surge'
+    } else if (typeof $task !== 'undefined') {
+        return 'Quantumult X'
+    } else if (typeof $notification !== 'undefined' && typeof $prefs !== 'undefined') {
+        return 'Loon'
+    } else {
+        return 'Unknown'
+    }
 }
 
 function done(value = {}) {
@@ -287,27 +345,43 @@ async function performLottery(headers) {
 
 function getToken() {
     if (isMatch(/\/supera\/member\/api\/bff\/pages\/v\d+_\d+_\d+\/v1\/user-info/)) {
-        log('开始获取token')
+        log('🔐 开始获取token')
         
         try {
             const headers = $request.headers
-            const token = headers["lmToken"] || headers["lmtoken"] || headers["LMTOKEN"] || ""
+            logDebug(`请求头信息: ${JSON.stringify(headers, null, 2)}`)
+            
+            // 在 Surge 中，header 字段名可能会被规范化，需要多种方式尝试
+            const token = headers["lmToken"] || headers["lmtoken"] || headers["LMTOKEN"] || 
+                         headers["LmToken"] || headers["Lmtoken"] || headers["LMToken"] || 
+                         headers["LM-Token"] || headers["lm-token"] || ""
 
             if (!token) {
+                const headerKeys = Object.keys(headers).join(', ')
                 notify("获取token失败", "请检查请求header中是否包含lmToken")
-                logError("获取token失败", `所有header字段: ${JSON.stringify(headers)}`)
+                logError("获取token失败", `未找到lmToken字段，当前header字段: ${headerKeys}`)
                 return
             }
 
             const currentToken = getVal(CONFIG.TOKEN_KEY)
             if (!currentToken) {
-                setVal(CONFIG.TOKEN_KEY, token)
-                notify("首次获取token成功", `token: ${sanitizeToken(token)}`)
-                log(`首次获取token成功: ${token}`)
+                const success = setVal(CONFIG.TOKEN_KEY, token)
+                if (success) {
+                    notify("🎉 首次获取token成功", `token: ${sanitizeToken(token)}`)
+                    log(`✅ 首次获取token成功: ${token}`)
+                } else {
+                    notify("token保存失败", "请检查存储权限")
+                    logError("token保存失败", "setVal返回false")
+                }
             } else if (currentToken !== token) {
-                setVal(CONFIG.TOKEN_KEY, token)
-                notify("token已更新", `新token: ${sanitizeToken(token)}`)
-                log(`token已更新: ${token}`)
+                const success = setVal(CONFIG.TOKEN_KEY, token)
+                if (success) {
+                    notify("🔄 token已更新", `新token: ${sanitizeToken(token)}`)
+                    log(`🔄 token已更新: ${token}`)
+                } else {
+                    notify("token更新失败", "请检查存储权限")
+                    logError("token更新失败", "setVal返回false")
+                }
             } else {
                 logDebug(`token未变化: ${sanitizeToken(token)}`)
             }
@@ -370,21 +444,24 @@ async function doSignIn() {
 // 主执行逻辑
 if (isRequest()) {
     // 请求阶段：获取token
+    log(`🚀 脚本启动 - 环境: ${getEnvironment()} | 模式: Token获取`)
     getToken()
     done()
 } else {
     // 定时任务阶段：执行签到和抽奖
     (async () => {
         try {
+            log(`🚀 脚本启动 - 环境: ${getEnvironment()} | 模式: 定时签到`)
+            
             const token = getVal(CONFIG.TOKEN_KEY)
             if (!validateToken(token)) {
                 notify("请先获取token", "请打开龙湖APP登录")
-                log("请先打开龙湖APP登录获取token")
+                log("❌ 请先打开龙湖APP登录获取token")
                 done()
                 return
             }
 
-            log(`开始执行签到和抽奖，token: ${sanitizeToken(token)}`)
+            log(`✅ Token验证通过，开始执行签到和抽奖，token: ${sanitizeToken(token)}`)
 
             // 先执行常规签到
             const signInSuccess = await doSignIn()

@@ -1,6 +1,8 @@
 #!name=龙湖自动签到
-#!desc=龙湖APP自动签到功能模块，包含获取Token、定时签到和抽奖功能
+#!desc=龙湖APP自动签到功能模块，包含获取Token、定时签到和抽奖功能 - Surge优化版
 #!system=ios
+#!author=lonelyman0108
+#!category=lonelyman0108
 # 使用方法：
 # 1. 将此配置导入 Shadowrocket
 # 2. 开启 MITM 和脚本功能
