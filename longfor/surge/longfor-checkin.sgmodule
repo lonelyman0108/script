@@ -17,7 +17,7 @@ hostname = %APPEND% gw2c-hw-open.longfor.com
 龙湖签到Token = type=http-response,pattern=^https:\/\/gw2c-hw-open\.longfor\.com\/supera\/member\/api\/bff\/pages\/v\d+_\d+_\d+\/v1\/user-info,requires-body=1,max-size=0,script-path=https://raw.githubusercontent.com/lonelyman0108/script/refs/heads/master/longfor/scripts/longfor-checkin.js
 
 # 定时签到和抽奖脚本
-龙湖自动签到 = type=cron,cronexp="0 9 * * *",wake-system=1,script-path=https://raw.githubusercontent.com/lonelyman0108/script/refs/heads/master/longfor/scripts/longfor-checkin.js
+龙湖自动签到 = type=cron,cronexp="42 9 * * *",wake-system=1,script-path=https://raw.githubusercontent.com/lonelyman0108/script/refs/heads/master/longfor/scripts/longfor-checkin.js
 
 # 使用说明：
 # 1. 安装配置后打开龙湖APP并登录
