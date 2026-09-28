@@ -1,0 +1,20 @@
+#!name=Steam 商店增强
+#!desc=增强 Steam 商店与社区页（App 内置浏览器 / 网页版）：每个礼包的史低与近一年/半年/30 天史低、各区价格对比、在线与峰值、HLTB、SteamDB 评分、礼包 ID、年龄验证跳过；社区页成就全球解锁率、库存市场价。
+#!author=lonelyman0108
+#!category=lonelyman0108
+#!arguments=COUNTRY:auto,CURRENCY:auto,REGIONS:CN/HK/TW/JP/KR/US/GB/DE/RU/UA/KZ/TR/AR/IN/BR,ITAD_KEY:none,LOWEST:true,HISTORY:false,REGION_PRICE:true,STATS:true,RATING:true,IDS:true,BUTTONS:true,AGECHECK:true,COMMUNITY:true
+#!arguments-desc=COUNTRY：史低查询与各区对比的基准区服（两位国家代码，如 CN、US），auto = 跟随商店页当前区服\nCURRENCY：各区价格换算货币（如 CNY、USD），auto = 基准区服的货币\nREGIONS：参与对比的区服，用 / 分隔，最多 30 个\nITAD_KEY：IsThereAnyDeal API Key，默认 none 表示不填（免费注册 https://isthereanydeal.com/apps/my/ ），配合 HISTORY=true 使用，只在代理端使用、不会传给网页\n\n以下为功能开关（true / false）：\nLOWEST：每个礼包的史低\nHISTORY：近一年 / 近半年 / 近 30 天史低（默认关闭；开启后需填写 ITAD_KEY，未填写时页面会提示）\nREGION_PRICE：每个礼包的各区价格\nSTATS：右侧在线人数、峰值、拥有者估算、HLTB、媒体评分\nRATING：SteamDB 评分\nIDS：礼包 ID 标签\nBUTTONS：顶部 SteamDB / PCGW 按钮\nAGECHECK：自动跳过年龄验证\nCOMMUNITY：社区页增强（个人成就全球解锁率与稀有度排序、个人资料 SteamDB 计算器、库存物品市场价）
+# 使用方法：
+# 1. 开启 MITM 并信任证书
+# 2. 打开任意 store.steampowered.com/app/<id> 页面，每个购买块会显示史低与各区价格
+# 数据来源：Steam 官方 API、Augmented Steam / IsThereAnyDeal，不请求 steamdb.info
+
+[MITM]
+hostname = %APPEND% store.steampowered.com, steamcommunity.com
+
+[Script]
+# 同源伪路径 API：页面只请求 /__steam_enhance/api/*，由代理端访问上游并缓存
+Steam增强 API = type=http-request,pattern=^https:\/\/store\.steampowered\.com\/__steam_enhance\/,timeout=20,script-path=https://raw.githubusercontent.com/lonelyman0108/script/refs/heads/master/steam_enhance/scripts/steam_enhance.js,argument="COUNTRY={{{COUNTRY}}}&CURRENCY={{{CURRENCY}}}&REGIONS={{{REGIONS}}}&ITAD_KEY={{{ITAD_KEY}}}&LOWEST={{{LOWEST}}}&HISTORY={{{HISTORY}}}&REGION_PRICE={{{REGION_PRICE}}}&STATS={{{STATS}}}&RATING={{{RATING}}}&IDS={{{IDS}}}&BUTTONS={{{BUTTONS}}}&AGECHECK={{{AGECHECK}}}&COMMUNITY={{{COMMUNITY}}}"
+
+# 页面注入：商店 app/sub/bundle 页，社区个人资料 / 个人成就 / 库存页（商店 HTML 约 200KB，需放宽 max-size）
+Steam增强 注入 = type=http-response,pattern=^https:\/\/(store\.steampowered\.com\/(agecheck\/)?(app|sub|bundle)\/\d+|steamcommunity\.com\/(id|profiles)\/[^\/?#]+(\/(stats\/[^\/?#]+|inventory))?\/?([?#]|$)),requires-body=1,max-size=5242880,timeout=10,script-path=https://raw.githubusercontent.com/lonelyman0108/script/refs/heads/master/steam_enhance/scripts/steam_enhance.js,argument="COUNTRY={{{COUNTRY}}}&CURRENCY={{{CURRENCY}}}&REGIONS={{{REGIONS}}}&ITAD_KEY={{{ITAD_KEY}}}&LOWEST={{{LOWEST}}}&HISTORY={{{HISTORY}}}&REGION_PRICE={{{REGION_PRICE}}}&STATS={{{STATS}}}&RATING={{{RATING}}}&IDS={{{IDS}}}&BUTTONS={{{BUTTONS}}}&AGECHECK={{{AGECHECK}}}&COMMUNITY={{{COMMUNITY}}}"

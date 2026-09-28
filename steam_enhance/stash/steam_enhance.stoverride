@@ -1,0 +1,31 @@
+name: Steam 商店增强
+desc: 增强 Steam 商店与社区页：每个礼包的史低与近期史低、各区价格对比、在线与峰值、HLTB、SteamDB 评分、DLC 史低；社区成就全球解锁率、库存市场价。
+author: lonelyman0108
+# 参数写在 argument 里（KEY=VALUE&... 格式），可选项见 README：
+# COUNTRY / CURRENCY / REGIONS / ITAD_KEY / HISTORY / LOWEST / REGION_PRICE / STATS / RATING / IDS / BUTTONS / AGECHECK / COMMUNITY
+# 例如开启近期史低：HISTORY=true&ITAD_KEY=你的Key
+
+http:
+  mitm:
+    - "store.steampowered.com"
+    - "steamcommunity.com"
+  script:
+    # 同源伪路径 API：页面只请求 /__steam_enhance/api/*，由代理端访问上游并缓存
+    - match: ^https:\/\/store\.steampowered\.com\/__steam_enhance\/
+      name: steam_enhance
+      type: request
+      timeout: 20
+      argument: "COUNTRY=auto&CURRENCY=auto&HISTORY=false&ITAD_KEY=none"
+    # 页面注入：商店 app/sub/bundle 页，社区个人资料 / 个人成就 / 库存页
+    - match: ^https:\/\/(store\.steampowered\.com\/(agecheck\/)?(app|sub|bundle)\/\d+|steamcommunity\.com\/(id|profiles)\/[^\/?#]+(\/(stats\/[^\/?#]+|inventory))?\/?([?#]|$))
+      name: steam_enhance
+      type: response
+      require-body: true
+      max-size: 5242880
+      timeout: 10
+      argument: "COUNTRY=auto&CURRENCY=auto&HISTORY=false&ITAD_KEY=none"
+
+script-providers:
+  steam_enhance:
+    url: https://raw.githubusercontent.com/lonelyman0108/script/refs/heads/master/steam_enhance/scripts/steam_enhance.js
+    interval: 86400

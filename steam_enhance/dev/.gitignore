@@ -1,0 +1,6 @@
+node_modules/
+.ca/
+.persistent-store.json
+package-lock.json
+shots/
+local/

@@ -1,0 +1,18 @@
+{
+  "name": "steam-enhance-dev",
+  "private": true,
+  "description": "Steam 商店增强 本地预览：用 MITM 代理模拟 Surge 模块运行环境",
+  "scripts": {
+    "start": "node dev-proxy.js",
+    "shot": "node shot.js",
+    "local": "node make-local.js",
+    "lan": "node lan-server.js",
+    "shot:community": "node shot-community.js",
+    "shot:readme": "node readme-shots.js"
+  },
+  "devDependencies": {
+    "http-mitm-proxy": "^1.1.0",
+    "js-yaml": "^4.3.2",
+    "puppeteer-core": "^23.11.1"
+  }
+}

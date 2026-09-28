@@ -1,0 +1,30 @@
+#!name = Steam 商店增强
+#!desc = 增强 Steam 商店与社区页：每个礼包的史低与近期史低、各区价格对比、在线与峰值、HLTB、SteamDB 评分、DLC 史低；社区成就全球解锁率、库存市场价。
+#!author = lonelyman0108
+#!homepage = https://github.com/lonelyman0108/script
+#!icon = https://store.steampowered.com/favicon.ico
+
+[Argument]
+COUNTRY = input,"auto",tag=基准区服,desc=史低查询与各区对比的基准区服（两位国家代码，如 CN、US），auto 跟随商店页当前区服
+CURRENCY = input,"auto",tag=换算货币,desc=各区价格换算货币（如 CNY、USD），auto 为基准区服货币
+REGIONS = input,"CN/HK/TW/JP/KR/US/GB/DE/RU/UA/KZ/TR/AR/IN/BR",tag=对比区服,desc=用 / 分隔，最多 30 个
+ITAD_KEY = input,"none",tag=ITAD API Key,desc=IsThereAnyDeal API Key（免费注册 https://isthereanydeal.com/apps/my/ ），配合近期史低使用，none 表示不填
+HISTORY = switch,false,tag=近期史低,desc=近一年 / 近半年 / 近 30 天史低，需要 ITAD API Key
+LOWEST = switch,true,tag=史低
+REGION_PRICE = switch,true,tag=各区价格
+STATS = switch,true,tag=数据块,desc=在线人数、峰值、拥有者估算、HLTB、媒体评分
+RATING = switch,true,tag=SteamDB 评分
+IDS = switch,true,tag=礼包 ID
+BUTTONS = switch,true,tag=顶部按钮,desc=SteamDB / PCGamingWiki
+AGECHECK = switch,true,tag=跳过年龄验证
+COMMUNITY = switch,true,tag=社区页增强,desc=成就全球解锁率、个人资料 SteamDB 计算器、库存市场价
+
+[MITM]
+hostname = store.steampowered.com, steamcommunity.com
+
+[Script]
+# 同源伪路径 API：页面只请求 /__steam_enhance/api/*，由代理端访问上游并缓存
+http-request ^https:\/\/store\.steampowered\.com\/__steam_enhance\/ script-path=https://raw.githubusercontent.com/lonelyman0108/script/refs/heads/master/steam_enhance/scripts/steam_enhance.js, timeout=20, tag=Steam增强 API, argument=[{COUNTRY},{CURRENCY},{REGIONS},{ITAD_KEY},{HISTORY},{LOWEST},{REGION_PRICE},{STATS},{RATING},{IDS},{BUTTONS},{AGECHECK},{COMMUNITY}]
+
+# 页面注入：商店 app/sub/bundle 页，社区个人资料 / 个人成就 / 库存页
+http-response ^https:\/\/(store\.steampowered\.com\/(agecheck\/)?(app|sub|bundle)\/\d+|steamcommunity\.com\/(id|profiles)\/[^\/?#]+(\/(stats\/[^\/?#]+|inventory))?\/?([?#]|$)) script-path=https://raw.githubusercontent.com/lonelyman0108/script/refs/heads/master/steam_enhance/scripts/steam_enhance.js, requires-body=true, timeout=10, tag=Steam增强 注入, argument=[{COUNTRY},{CURRENCY},{REGIONS},{ITAD_KEY},{HISTORY},{LOWEST},{REGION_PRICE},{STATS},{RATING},{IDS},{BUTTONS},{AGECHECK},{COMMUNITY}]
