@@ -1,6 +1,6 @@
 [Plugin]
-name = 小米汽车订单监控
-description = 监控小米汽车订单状态，并在状态变更时发送通知。
+name = [已废弃] 小米汽车订单监控
+description = 【已废弃，不再维护，可能已失效】监控小米汽车订单状态，并在状态变更时发送通知。
 author = lonelyman0108
 repo = https://github.com/lonelyman0108/script
 version = 1.0.0

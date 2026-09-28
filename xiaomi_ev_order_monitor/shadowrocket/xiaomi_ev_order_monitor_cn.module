@@ -1,5 +1,5 @@
 [General]
-# 小米汽车订单监控
+# [已废弃] 小米汽车订单监控（不再维护，可能已失效）
 
 [Rule]
 DOMAIN,api.retail.xiaomiev.com,PROXY

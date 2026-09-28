@@ -1,7 +1,7 @@
 # xiaomi_ev_order_monitor.stoverride
 # Stash 覆盖文件
-name: 小米汽车订单监控
-description: 自动监控小米汽车订单状态并发送通知
+name: "[已废弃] 小米汽车订单监控"
+description: 【已废弃，不再维护，可能已失效】自动监控小米汽车订单状态并发送通知
 author: lonelyman0108
 
 mitm:

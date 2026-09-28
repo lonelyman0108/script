@@ -1,11 +1,13 @@
-# 🏢 龙湖APP自动签到脚本 
+# 🏢 龙湖APP自动签到脚本（已废弃） 
+
+> [!WARNING]
+> **本项目已废弃，不再维护。** 脚本可能已无法正常工作，请勿继续使用；已安装的用户建议在代理工具中移除对应模块 / 插件。以下内容仅作存档保留。
 
 Fork from https://github.com/jayyeungchan/Auxiliary
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/platform-iOS-lightgrey.svg)]()
-[![Script](https://img.shields.io/badge/script-JavaScript-yellow.svg)]()
-[![Version](https://img.shields.io/badge/version-v1.1-green.svg)]()
+![Platform](https://img.shields.io/badge/platform-iOS-lightgrey.svg)
+![Script](https://img.shields.io/badge/script-JavaScript-yellow.svg)
+![Version](https://img.shields.io/badge/version-v1.1-green.svg)
 
 > 🎯 一个用于龙湖APP自动签到和抽奖的脚本，支持Surge、Shadowrocket、Quantumult X、Loon等代理工具平台
 
@@ -172,10 +174,6 @@ hostname = gw2c-hw-open.longfor.com
 3. **适度使用**: 避免频繁请求导致账号异常或被限制
 4. **及时更新**: 关注脚本更新，确保功能正常运行
 5. **网络环境**: 确保网络连接稳定，避免签到失败
-
-## 📄 许可证
-
-本项目采用 [MIT License](LICENSE) 许可证。
 
 ## 🙏 致谢
 

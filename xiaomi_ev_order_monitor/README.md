@@ -1,4 +1,7 @@
-# 🚗 小米汽车 App 订单监控
+# 🚗 小米汽车 App 订单监控（已废弃）
+
+> [!WARNING]
+> **本项目已废弃，不再维护。** 脚本可能已无法正常工作，请勿继续使用；已安装的用户建议在代理工具中移除对应模块 / 插件。以下内容仅作存档保留。
 
 ![Surge](https://img.shields.io/badge/Surge-✓-green) ![Stash](https://img.shields.io/badge/Stash-✓-green) ![Loon](https://img.shields.io/badge/Loon-✓-green) ![Shadowrocket](https://img.shields.io/badge/Shadowrocket-✓-green) ![Quantumult X](https://img.shields.io/badge/Quantumult%20X-✓-green)
 

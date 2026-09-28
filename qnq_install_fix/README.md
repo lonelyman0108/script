@@ -1,6 +1,6 @@
 # 🔧 全能签安装修复工具
 
-    
+
 
 ## 🎯 功能简介
 
@@ -87,6 +87,7 @@
 **1. 复制配置文件链接**
 
     https://raw.githubusercontent.com/lonelyman0108/script/refs/heads/master/qnq_install_fix/qx/qnq_install_fix.conf
+
 **2. 在 Quantumult X 中引用配置**
 
   * 打开 Quantumult X，点击右下角的 `风车` 图标，进入 `配置文件` -\> `编辑`。

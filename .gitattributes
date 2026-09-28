@@ -1,0 +1,9 @@
+# 统一使用 LF：脚本与模块通过 raw 地址直接被代理工具下载，保持与仓库一致
+* text=auto eol=lf
+
+# 二进制文件
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.gif binary
+*.ico binary
